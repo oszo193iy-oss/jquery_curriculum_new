@@ -30,8 +30,7 @@ $(function() {
     $('.nav li').on('click', switchContent);
     function switchContent() {
         var clickedIndex = $(this).index();
-        $('.contents li').addClass('is-hidden');
-        $('.contents li').eq(clickedIndex).removeClass('is-hidden');
+        $('.contents li').addClass('is-hidden').eq(clickedIndex).removeClass('is-hidden');
     }
 });
 

@@ -60,10 +60,10 @@
 
 // 第3問  id='q3'の要素をクリックしたらこの要素の前後とこの要素内の前後にテキストを挿入せよ。
     $('#q3').click(function() {
-      $(this).before('外側の前')
-      $(this).prepend('内側の前')
-      $(this).append('内側の後')
-      $(this).after('外側の後')
+      $(this) .before('外側の前')
+              .prepend('内側の前')
+              .append('内側の後')
+              .after('外側の後')
     });
 
 // 第4問  id='q4'の要素をクリックしたらこの要素にlargeというクラスを付与せよ。
