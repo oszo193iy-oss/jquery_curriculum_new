@@ -49,62 +49,62 @@ $(function() {
     <button class="btn" data-js="reset">戻る</button>
   `
 // ①ポケモンを探す」ボタンをクリックしたときの処理
-  $(document).on('click', '#pokemon_search', function() {
+  $(document).on('click', '#pokemon_search', function() {  // document = ブラウザがくれたWebページ全体
     let randomId = Math.floor(Math.random() * 151) + 1;
     let pokemonUrl = 'https://pokeapi.co/api/v2/pokemon/' + randomId;
 
 // 【1回目のAjax通信】ポケモンの基本データを取得しにいく
-     $.ajax({
-        url: pokemonUrl,
-        method: 'GET',
-    }).done(function(res) {
-    console.log(res.species.url);
+    $.ajax({
+      url: pokemonUrl,
+      method: 'GET', // 変更・削除せずにデータを取得
+    }).done(function(res) { // 通信が成功したらデータが返ってきた時に動く関数（処理）res=APIから持ってきたデータ
+      console.log(res.species.url);
 
 // 【2回目のAjax通信】日本語名取得
-    $.ajax({
-      url: res.species.url,
-      method: 'GET'
-    }).done(function(speciesRes) {
-      let jaNameData = speciesRes.names.find(item => item.language.name === 'ja');
-      let nameJa = jaNameData ? jaNameData.name : '不明';
+      $.ajax({
+        url: res.species.url,
+        method: 'GET'
+      }).done(function(speciesRes) {  // speciesRes=全言語の丸ごとデータ
+        let jaNameData = speciesRes.names.find(item => item.language.name === 'ja'); // 英語版をitemとする
+        let nameJa = jaNameData ? jaNameData.name : '不明';
 
-    $wrapper.html(encountHtml);
-    $wrapper.find('.img').attr('src',res.sprites.front_default);
-    $wrapper.find('.name').text(nameJa);
+        $wrapper.html(encountHtml);
+        $wrapper.find('.img').attr('src',res.sprites.front_default);  // imgクラスのsrcに.attr()で'src'を書き換え
+        $wrapper.find('.name').text(nameJa);
+
+      }).fail(function(err) {  // ③
+        console.error('日本語名の取得に失敗しました:', err);
+      });
 
     }).fail(function(err) {  // ③
-    console.error('日本語名の取得に失敗しました:', err);
-  });
-
-  }).fail(function(err) {  // ③
-    console.error('ポケモンの取得に失敗しました:', err);
-  });
+      console.error('ポケモンの取得に失敗しました:', err);
+    });
   });
 
 // ② 「捕まえる」ボタンをクリックしたときの処理
-    $(document).on('click', '#catch', function() {
+  $(document).on('click', '#catch', function() {
     let ballImageUrl = 'https://pokeapi.co/api/v2/item/4'
-    let isSuccess = (Math.random() < 0.5);
+    let isSuccess = (Math.random() < 0.5); // 生み出された数字が0.5 よりも小さいかどうか 確率50%
 
     if(isSuccess) {
 // 【成功時のAjax通信】モンスターボールの画像をAPIから取得しにいく
       $.ajax({
         url: ballImageUrl,
         method: 'GET'
-      }).done(function(ballRes) {
+      }).done(function(ballRes) { // ballRes=モンスターボールのデータ丸ごと（名前や画像URLなど）が詰まった箱
         $wrapper.html(doneHtml);
         $wrapper.find('.img').attr('src', ballRes.sprites.default);
       });
-    }else{
+    } else {
       $wrapper.html(failHtml);
       $wrapper.find('.img').attr('src', '');
-      }
-    });
+    }
+  });
 
 // ③ 戻るボタンをクリックしたときの処理
-$(document).on('click', '[data-js="reset"]', function() {
-  $wrapper.html('<button type="button" class="btn search-btn" id="pokemon_search">ポケモンを探す</button>');
-});
+  $(document).on('click', '[data-js="reset"]', function() {
+    $wrapper.html('<button type="button" class="btn search-btn" id="pokemon_search">ポケモンを探す</button>');
+  });
 });
   </script>
   </body>
