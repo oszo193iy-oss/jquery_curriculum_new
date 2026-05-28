@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -9,6 +10,7 @@
   <link rel="stylesheet" href="./css/style.css">
   <title>Document</title>
 </head>
+
 <body>
   <div class="wrapper" id="wrapper">
     <button type="button" class="btn search-btn" id="pokemon_search">ポケモンを探す</button>
@@ -16,19 +18,19 @@
   <script src="../../common/js/jquery.js"></script>
   <script>
     // 回答はここに書いてね
-$(function() {
-  const $wrapper = $('#wrapper');
+    $(function () {
+      const $wrapper = $('#wrapper');
 
-   // 「捕まえる」失敗時の画面表示
-  let failHtml =
-  `
+      // 「捕まえる」失敗時の画面表示
+      let failHtml =
+        `
     <p class="text">逃げられてしまった...</p>
     <button class="btn mt" data-js="reset">戻る</button>
   `
 
-  // 「ポケモンを探す」後の画面表示
-  let encountHtml =
-  `
+      // 「ポケモンを探す」後の画面表示
+      let encountHtml =
+        `
     <p class="name"></p>
     <div>
       <img class="img" src="" alt="">
@@ -39,73 +41,74 @@ $(function() {
     </div>
   `
 
-  // 「捕まえる」成功時の画面表示
-  let doneHtml =
-  `
+      // 「捕まえる」成功時の画面表示
+      let doneHtml =
+        `
     <p class="name">ゲットしました</p>
     <div>
       <img class="img" src="" alt="">
     </div>
     <button class="btn" data-js="reset">戻る</button>
   `
-// ①ポケモンを探す」ボタンをクリックしたときの処理
-  $(document).on('click', '#pokemon_search', function() {  // document = ブラウザがくれたWebページ全体
-    let randomId = Math.floor(Math.random() * 151) + 1;
-    let pokemonUrl = 'https://pokeapi.co/api/v2/pokemon/' + randomId;
+      // ①ポケモンを探す」ボタンをクリックしたときの処理
+      $(document).on('click', '#pokemon_search', function () {  // document = ブラウザがくれたWebページ全体
+        let randomId = Math.floor(Math.random() * 151) + 1;
+        let pokemonUrl = 'https://pokeapi.co/api/v2/pokemon/' + randomId;
 
-// 【1回目のAjax通信】ポケモンの基本データを取得しにいく
-    $.ajax({
-      url: pokemonUrl,
-      method: 'GET', // 変更・削除せずにデータを取得
-    }).done(function(res) { // 通信が成功したらデータが返ってきた時に動く関数（処理）res=APIから持ってきたデータ
-      console.log(res.species.url);
+        // 【1回目のAjax通信】ポケモンの基本データを取得しにいく
+        $.ajax({
+          url: pokemonUrl,
+          method: 'GET', // 変更・削除せずにデータを取得
+        }).done(function (res) { // 通信が成功したらデータが返ってきた時に動く関数（処理）res=APIから持ってきたデータ
+          console.log(res.species.url);
 
-// 【2回目のAjax通信】日本語名取得
-      $.ajax({
-        url: res.species.url,
-        method: 'GET'
-      }).done(function(speciesRes) {  // speciesRes=全言語の丸ごとデータ
-        let jaNameData = speciesRes.names.find(item => item.language.name === 'ja'); // 英語版をitemとする
-        let nameJa = jaNameData ? jaNameData.name : '不明';
+          // 【2回目のAjax通信】日本語名取得
+          $.ajax({
+            url: res.species.url,
+            method: 'GET'
+          }).done(function (speciesRes) {  // speciesRes=全言語の丸ごとデータ
+            let jaNameData = speciesRes.names.find(item => item.language.name === 'ja'); // 英語版をitemとする
+            let nameJa = jaNameData ? jaNameData.name : '不明';
 
-        $wrapper.html(encountHtml);
-        $wrapper.find('.img').attr('src',res.sprites.front_default);  // imgクラスのsrcに.attr()で'src'を書き換え
-        $wrapper.find('.name').text(nameJa);
+            $wrapper.html(encountHtml);
+            $wrapper.find('.img').attr('src', res.sprites.front_default);  // imgクラスのsrcに.attr()で'src'を書き換え
+            $wrapper.find('.name').text(nameJa);
 
-      }).fail(function(err) {  // ③
-        console.error('日本語名の取得に失敗しました:', err);
+          }).fail(function (err) {  // ③
+            console.error('日本語名の取得に失敗しました:', err);
+          });
+
+        }).fail(function (err) {  // ③
+          console.error('ポケモンの取得に失敗しました:', err);
+        });
       });
 
-    }).fail(function(err) {  // ③
-      console.error('ポケモンの取得に失敗しました:', err);
+      // ② 「捕まえる」ボタンをクリックしたときの処理
+      $(document).on('click', '#catch', function () {
+        let ballImageUrl = 'https://pokeapi.co/api/v2/item/4'
+        let isSuccess = (Math.random() < 0.5); // 生み出された数字が0.5 よりも小さいかどうか 確率50%
+
+        if (isSuccess) {
+          // 【成功時のAjax通信】モンスターボールの画像をAPIから取得しにいく
+          $.ajax({
+            url: ballImageUrl,
+            method: 'GET'
+          }).done(function (ballRes) { // ballRes=モンスターボールのデータ丸ごと（名前や画像URLなど）が詰まった箱
+            $wrapper.html(doneHtml);
+            $wrapper.find('.img').attr('src', ballRes.sprites.default);
+          });
+        } else {
+          $wrapper.html(failHtml);
+          $wrapper.find('.img').attr('src', '');
+        }
+      });
+
+      // ③ 戻るボタンをクリックしたときの処理
+      $(document).on('click', '[data-js="reset"]', function () {
+        $wrapper.html('<button type="button" class="btn search-btn" id="pokemon_search">ポケモンを探す</button>');
+      });
     });
-  });
-
-// ② 「捕まえる」ボタンをクリックしたときの処理
-  $(document).on('click', '#catch', function() {
-    let ballImageUrl = 'https://pokeapi.co/api/v2/item/4'
-    let isSuccess = (Math.random() < 0.5); // 生み出された数字が0.5 よりも小さいかどうか 確率50%
-
-    if(isSuccess) {
-// 【成功時のAjax通信】モンスターボールの画像をAPIから取得しにいく
-      $.ajax({
-        url: ballImageUrl,
-        method: 'GET'
-      }).done(function(ballRes) { // ballRes=モンスターボールのデータ丸ごと（名前や画像URLなど）が詰まった箱
-        $wrapper.html(doneHtml);
-        $wrapper.find('.img').attr('src', ballRes.sprites.default);
-      });
-    } else {
-      $wrapper.html(failHtml);
-      $wrapper.find('.img').attr('src', '');
-    }
-  });
-
-// ③ 戻るボタンをクリックしたときの処理
-  $(document).on('click', '[data-js="reset"]', function() {
-    $wrapper.html('<button type="button" class="btn search-btn" id="pokemon_search">ポケモンを探す</button>');
-  });
-});
   </script>
-  </body>
+</body>
+
 </html>
